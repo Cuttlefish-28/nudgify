@@ -1,6 +1,11 @@
-streamlit
+
 pandas
 matplotlib
 seaborn
 numpy
 streamlit-lottie
+streamlit>=1.33.0
+streamlit-option-menu
+Pillow
+requests
+
