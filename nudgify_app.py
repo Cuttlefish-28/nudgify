@@ -60,6 +60,9 @@ if selected == "Home":
         uploaded_file = st.file_uploader("Upload your transaction CSV", type="csv")
         if uploaded_file:
             df = pd.read_csv(uploaded_file)
+            df.columns = df.columns.str.strip().str.title()
+            df['Merchant'] = df['Merchant'].str.strip().str.title()
+
             st.success("✅ File uploaded successfully!")
 
             if 'Merchant' in df.columns and 'Category' not in df.columns:
@@ -67,7 +70,7 @@ if selected == "Home":
                     'Zomato': 'Food', 'Swiggy': 'Food', 'Amazon': 'Shopping',
                     'Uber': 'Transport', 'Blinkit': 'Groceries', 'H&M': 'Clothing'
                 }
-                df['Category'] = df['Merchant'].map(merchant_to_category).fillna('Others')
+                df['Category'] = df['Merchant'].map(lambda x: merchant_to_category.get(x, 'Others'))
             st.dataframe(df.head())
 
     with tab2:
@@ -128,3 +131,4 @@ if selected == "About":
 
     Made with ❤️ using Python, Streamlit, Matplotlib, Pandas and some hardwork.
     """)
+
