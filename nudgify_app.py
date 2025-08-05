@@ -69,32 +69,38 @@ if selected == "Home":
         elif sms_input:
             sms_lines = sms_input.strip().split('\n')
             amount = None
-      if amount_match and amount_match.group(1).strip():
-       try:
-        amount = float(amount_match.group(1).replace(",", ""))
-       except ValueError:
-        amount = None
-                merchant_match = re.search(r'(?:at|for|on|from)\s+([A-Za-z&]+)', sms, re.IGNORECASE)
-                merchant = merchant_match.group(1).title() if merchant_match else "Unknown"
+     parsed_data = []
+     for sms in sms_lines:
+         amount_match = re.search(r'(?:INR|₹|Rs\.?|rs)?[\s]*([\d,]+(?:\.\d{1,2})?)', sms, re.IGNORECASE)
+    
+          amount = None
+       if amount_match and amount_match.group(1).strip():
+        try:
+            amount = float(amount_match.group(1).replace(",", ""))
+        except ValueError:
+            amount = None
 
-                if "debited" in sms.lower() or "spent" in sms.lower():
-                    txn_type = "Debit"
-                elif "credited" in sms.lower():
-                    txn_type = "Credit"
-                elif "declined" in sms.lower() or "reversed" in sms.lower():
-                    txn_type = "Reversal"
-                else:
-                    txn_type = "Unknown"
+      merchant_match = re.search(r'(?:at|for|on|from)\s+([A-Za-z&]+)', sms, re.IGNORECASE)
+      merchant = merchant_match.group(1).title() if merchant_match else "Unknown"
 
-                date = datetime.today().strftime('%Y-%m-%d')
-                parsed_data.append({
-                    "Merchant": merchant,
-                    "Amount": amount,
-                    "Type": txn_type,
-                    "Message": sms,
-                    "Date": date
-                })
+     if "debited" in sms.lower() or "spent" in sms.lower():
+        txn_type = "Debit"
+     elif "credited" in sms.lower():
+        txn_type = "Credit"
+     elif "declined" in sms.lower() or "reversed" in sms.lower():
+        txn_type = "Reversal"
+     else:
+        txn_type = "Unknown"
 
+     date = datetime.today().strftime('%Y-%m-%d')
+     parsed_data.append({
+        "Merchant": merchant,
+        "Amount": amount,
+        "Type": txn_type,
+        "Message": sms,
+        "Date": date
+     })
+ 
             df = pd.DataFrame(parsed_data)
             st.success("✅ SMS parsed successfully!")
 
