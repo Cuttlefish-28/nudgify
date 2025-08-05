@@ -57,7 +57,7 @@ if selected == "Home":
     # ---------- TABS ----------
     tab1, tab2, tab3 = st.tabs(["📂 Upload", "📊 Insights", "💡 Nudges"])
 
-    with tab1:
+with tab1:
     st.subheader("Upload CSV or Paste SMS Messages")
 
     # 📂 CSV Upload
