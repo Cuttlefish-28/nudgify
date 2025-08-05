@@ -108,16 +108,14 @@ if selected == "Home":
             df.columns = df.columns.str.strip().str.title()
             if 'Merchant' in df.columns and 'Category' not in df.columns:
                 merchant_to_category = {
-                    'Zomato': 'Food', 'Swiggy': 'Food', 'Dominos': 'Food',
-                    'Amazon': 'Shopping', 'Flipkart': 'Shopping', 'Nykaa': 'Beauty',
-                    'Uber': 'Transport', 'Rapido': 'Transport',
-                    'H&M': 'Clothing', 'Myntra': 'Clothing', 'Bigbasket': 'Groceries',
-                    'Blinkit': 'Groceries', 'Jio': 'Recharge', 'Airtel': 'Recharge',
-                    'Vodafone': 'Recharge', 'Netflix': 'Entertainment', 'Hotstar': 'Entertainment',
-                    'Spotify': 'Entertainment', 'Bookmyshow': 'Entertainment',
-                    'Cleartrip': 'Travel', 'Makemytrip': 'Travel', 'Yatra': 'Travel',
-                    'IRCTC': 'Travel', 'Ola': 'Transport', 'Phonepe': 'Payments',
-                    'Paytm': 'Payments', 'Google': 'Payments', 'Apple': 'Payments'
+                    'Zomato': 'Food', 'Swiggy': 'Food', 'Dominos': 'Food', 'Kfc': 'Food', 'McDonalds': 'Food',
+                    'Amazon': 'Shopping', 'Flipkart': 'Shopping', 'Nykaa': 'Beauty', 'Ajio': 'Clothing', 'H&M': 'Clothing', 'Myntra': 'Clothing',
+                    'Uber': 'Transport', 'Rapido': 'Transport', 'Ola': 'Transport',
+                    'Bigbasket': 'Groceries', 'Blinkit': 'Groceries', 'Jiomart': 'Groceries',
+                    'Jio': 'Recharge', 'Airtel': 'Recharge', 'Vodafone': 'Recharge',
+                    'Netflix': 'Entertainment', 'Hotstar': 'Entertainment', 'Spotify': 'Entertainment', 'Bookmyshow': 'Entertainment',
+                    'Cleartrip': 'Travel', 'Makemytrip': 'Travel', 'Yatra': 'Travel', 'Irctc': 'Travel',
+                    'Phonepe': 'Payments', 'Paytm': 'Payments', 'Google': 'Payments', 'Apple': 'Payments'
                 }
                 df['Merchant'] = df['Merchant'].str.strip().str.title()
                 df['Category'] = df['Merchant'].map(lambda x: merchant_to_category.get(x, 'Others'))
@@ -134,7 +132,7 @@ if selected == "Home":
             total_spent = df['Amount'].sum()
             percent_spent = (total_spent / user_budget_insight * 100) if user_budget_insight > 0 else 0
 
-            if user_budget_insight > 0:
+            if percent_spent >= 0:
                 fig2, ax2 = plt.subplots(figsize=(4, 4))
                 wedges, _ = ax2.pie([percent_spent, 100 - percent_spent],
                                     startangle=90, counterclock=False,
