@@ -68,11 +68,12 @@ if selected == "Home":
 
         elif sms_input:
             sms_lines = sms_input.strip().split('\n')
-            parsed_data = []
-            for sms in sms_lines:
-                amount_match = re.search(r'(?:INR|₹|Rs\.?|rs)?[\s]*([\d,]+(?:\.\d{1,2})?)', sms, re.IGNORECASE)
-                amount = float(amount_match.group(1).replace(",", "")) if amount_match else None
-
+            amount = None
+      if amount_match and amount_match.group(1).strip():
+       try:
+        amount = float(amount_match.group(1).replace(",", ""))
+       except ValueError:
+        amount = None
                 merchant_match = re.search(r'(?:at|for|on|from)\s+([A-Za-z&]+)', sms, re.IGNORECASE)
                 merchant = merchant_match.group(1).title() if merchant_match else "Unknown"
 
