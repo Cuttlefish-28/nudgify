@@ -70,16 +70,18 @@ if selected == "Home":
             sms_lines = sms_input.strip().split('\n')
             parsed_data = []
             for sms in sms_lines:
-                amount_match = re.search(r'(INR|₹|Rs\\.?)?\\s?(\\d+[.,]?\\d*)', sms, re.IGNORECASE)
-                amount = float(amount_match.group(2)) if amount_match else None
+                amount_match = re.search(r'(?:INR|₹|Rs\.?|rs)?[\s]*([\d,]+(?:\.\d{1,2})?)', sms, re.IGNORECASE)
+                amount = float(amount_match.group(1).replace(",", "")) if amount_match else None
 
-                merchant_match = re.search(r'(at|for|on|from)\\s+([A-Za-z&]+)', sms, re.IGNORECASE)
-                merchant = merchant_match.group(2).title() if merchant_match else "Unknown"
+                merchant_match = re.search(r'(?:at|for|on|from)\s+([A-Za-z&]+)', sms, re.IGNORECASE)
+                merchant = merchant_match.group(1).title() if merchant_match else "Unknown"
 
                 if "debited" in sms.lower() or "spent" in sms.lower():
                     txn_type = "Debit"
                 elif "credited" in sms.lower():
                     txn_type = "Credit"
+                elif "declined" in sms.lower() or "reversed" in sms.lower():
+                    txn_type = "Reversal"
                 else:
                     txn_type = "Unknown"
 
