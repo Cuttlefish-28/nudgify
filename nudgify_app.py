@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import re  # ✅ Regular expressions for SMS parsing
+import re
 from streamlit_lottie import st_lottie
 import requests
 from streamlit_option_menu import option_menu
@@ -58,10 +58,42 @@ if selected == "Home":
 
     with tab1:
         uploaded_file = st.file_uploader("Upload your transaction CSV", type="csv")
+        sms_input = st.text_area("Or paste your SMS messages (one per line)", height=200)
+        df = None
+
         if uploaded_file:
             df = pd.read_csv(uploaded_file)
             st.success("✅ File uploaded successfully!")
 
+        elif sms_input:
+            sms_lines = sms_input.strip().split('\n')
+            parsed_data = []
+            for sms in sms_lines:
+                amount_match = re.search(r'(INR|₹|Rs\\.?)?\\s?(\\d+[.,]?\\d*)', sms, re.IGNORECASE)
+                amount = float(amount_match.group(2)) if amount_match else None
+
+                merchant_match = re.search(r'(at|for|on|from)\\s+([A-Za-z&]+)', sms, re.IGNORECASE)
+                merchant = merchant_match.group(2).title() if merchant_match else "Unknown"
+
+                if "debited" in sms.lower() or "spent" in sms.lower():
+                    txn_type = "Debit"
+                elif "credited" in sms.lower():
+                    txn_type = "Credit"
+                else:
+                    txn_type = "Unknown"
+
+                parsed_data.append({
+                    "Merchant": merchant,
+                    "Amount": amount,
+                    "Type": txn_type,
+                    "Message": sms
+                })
+
+            df = pd.DataFrame(parsed_data)
+            st.success("✅ SMS parsed successfully!")
+
+        if df is not None:
+            df.columns = df.columns.str.strip().str.title()
             if 'Merchant' in df.columns and 'Category' not in df.columns:
                 merchant_to_category = {
                     'Zomato': 'Food', 'Swiggy': 'Food', 'Dominos': 'Food',
@@ -74,7 +106,7 @@ if selected == "Home":
             st.dataframe(df.head())
 
     with tab2:
-        if uploaded_file and 'Amount' in df.columns:
+        if df is not None and 'Amount' in df.columns:
             df['Amount'] = pd.to_numeric(df['Amount'], errors='coerce')
             df.dropna(subset=['Amount'], inplace=True)
 
@@ -124,7 +156,7 @@ if selected == "Home":
                 st.warning("🟨 No 'Category' column found for pie chart.")
 
     with tab3:
-        if uploaded_file and 'Amount' in df.columns:
+        if df is not None and 'Amount' in df.columns:
             avg_spend = df['Amount'].mean()
             total_spend = df['Amount'].sum()
 
