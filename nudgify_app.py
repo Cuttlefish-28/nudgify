@@ -108,7 +108,7 @@ if selected == "Home":
             df.columns = df.columns.str.strip().str.title()
             if 'Merchant' in df.columns and 'Category' not in df.columns:
                 merchant_to_category = {
-                    'Zomato': 'Food', 'Swiggy': 'Food', 'Dominos': 'Food', 'Kfc': 'Food', 'McDonalds': 'Food',
+                    'Zomato': 'Food', 'Swiggy': 'Food', 'Dominos': 'Food', 'Kfc': 'Food', 'Mcdonalds': 'Food',
                     'Amazon': 'Shopping', 'Flipkart': 'Shopping', 'Nykaa': 'Beauty', 'Ajio': 'Clothing', 'H&M': 'Clothing', 'Myntra': 'Clothing',
                     'Uber': 'Transport', 'Rapido': 'Transport', 'Ola': 'Transport',
                     'Bigbasket': 'Groceries', 'Blinkit': 'Groceries', 'Jiomart': 'Groceries',
@@ -132,7 +132,7 @@ if selected == "Home":
             total_spent = df['Amount'].sum()
             percent_spent = (total_spent / user_budget_insight * 100) if user_budget_insight > 0 else 0
 
-            if percent_spent >= 0:
+            if 0 <= percent_spent <= 100:
                 fig2, ax2 = plt.subplots(figsize=(4, 4))
                 wedges, _ = ax2.pie([percent_spent, 100 - percent_spent],
                                     startangle=90, counterclock=False,
@@ -219,3 +219,4 @@ if selected == "About":
 
     Made with ❤️ using Python, Streamlit, Matplotlib, Pandas and some hard work.
     """)
+
