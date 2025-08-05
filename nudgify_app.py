@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from streamlit_lottie import st_lottie
 import requests
+import re
 from streamlit_option_menu import option_menu
 
 # ------------------ PAGE CONFIG ------------------
@@ -111,20 +112,49 @@ if selected == "Home":
         st.success(\"✅ SMS parsed successfully!\")
         st.dataframe(df)
 
-    with tab2:
-        if uploaded_file and 'Amount' in df.columns:
-            df['Amount'] = pd.to_numeric(df['Amount'], errors='coerce')
-            df.dropna(subset=['Amount'], inplace=True)
+   with tab2:
+    if df is not None and 'Amount' in df.columns:
+        df['Amount'] = pd.to_numeric(df['Amount'], errors='coerce')
+        df.dropna(subset=['Amount'], inplace=True)
 
-            if 'Category' in df.columns:
-                st.subheader("📍 Category Breakdown")
-                category_spend = df.groupby('Category')['Amount'].sum()
-                fig, ax = plt.subplots()
-                category_spend.plot(kind='pie', autopct='%1.1f%%', ax=ax)
-                ax.set_ylabel("")
-                st.pyplot(fig)
-            else:
-                st.warning("🟨 No 'Category' column found for pie chart.")
+        # ✅ Generate category from merchant if not already present
+        if 'Category' not in df.columns and 'Merchant' in df.columns:
+            merchant_to_category = {
+                'Swiggy': 'Food', 'Zomato': 'Food', 'Dominos': 'Food',
+                'Amazon': 'Shopping', 'Flipkart': 'Shopping', 'Nykaa': 'Beauty',
+                'Uber': 'Transport', 'Rapido': 'Transport',
+                'H&M': 'Clothing', 'Myntra': 'Clothing',
+            }
+            df['Merchant'] = df['Merchant'].str.strip().str.title()
+            df['Category'] = df['Merchant'].map(lambda x: merchant_to_category.get(x, 'Others'))
+
+        # ✅ Now plot category-wise spend
+        if 'Category' in df.columns:
+            st.subheader("📍 Category Breakdown")
+            category_spend = df.groupby('Category')['Amount'].sum()
+            fig, ax = plt.subplots()
+            category_spend.plot(kind='pie', autopct='%1.1f%%', ax=ax)
+            ax.set_ylabel("")
+            st.pyplot(fig)
+                    # 🔢 Ask for budget if not already set
+        st.subheader("📈 Budget Usage")
+        user_budget_insight = st.number_input("Enter your monthly budget (₹):", min_value=0, value=15000, step=500, key="budget_tab2")
+
+        total_spent = df['Amount'].sum()
+        percent_spent = (total_spent / user_budget_insight) * 100
+
+         if percent_spent >= 100:
+            st.error(f"🚨 You've spent {percent_spent:.1f}% of your monthly budget. You're over the limit!")
+         elif percent_spent >= 80:
+            st.warning(f"⚠️ {percent_spent:.1f}% of your budget is already used. Slow down a little?")
+         elif percent_spent >= 50:
+            st.info(f"⏳ You've used {percent_spent:.1f}% of your budget. Track weekly to stay in control.")
+         else:
+            st.success(f"💚 Only {percent_spent:.1f}% of your budget spent — keep going smart!")
+
+        else:
+            st.warning("🟨 No 'Category' column found.")
+
 
     with tab3:
         
